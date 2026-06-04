@@ -1,0 +1,31 @@
+2026-06-03 17:14:10,768 - INFO - Starting Cloud USN data extraction...
+2026-06-03 17:14:10,771 - INFO - Looking for CSV files in: C:\Users\frase\Desktop\planning_report_automation\data
+2026-06-03 17:14:10,790 - INFO - Found 12 CSV files in data folder
+2026-06-03 17:14:10,790 - INFO - 
+Processing LMB Cloud USN...
+2026-06-03 17:14:10,801 - WARNING - No file found for pattern: *2G*SAU*LMB*.csv
+2026-06-03 17:14:10,975 - INFO -   2G_SAU: 0
+2026-06-03 17:14:10,976 - WARNING - No file found for pattern: *3G*SAU*LMB*.csv
+2026-06-03 17:14:10,976 - INFO -   3G_SAU: 0
+2026-06-03 17:14:11,047 - WARNING - No file found for pattern: *4G*SAU*LMB*.csv
+2026-06-03 17:14:11,047 - INFO -   4G_SAU: 0
+2026-06-03 17:14:11,048 - INFO - Found file: USN 2G PDP LMB.csv
+2026-06-03 17:14:30,363 - INFO -   2G_PDP: 17,234
+2026-06-03 17:14:30,365 - INFO - Found file: vUSN 3G PDP LMB.csv
+2026-06-03 17:14:30,550 - INFO -   3G_PDP: 53,493
+2026-06-03 17:14:30,551 - INFO - Found file: USN 4G PDP LMB.csv
+2026-06-03 17:14:30,850 - INFO -   4G_PDP: 526,980
+2026-06-03 17:14:30,850 - INFO - 
+Processing LL Cloud USN...
+2026-06-03 17:14:30,852 - WARNING - No file found for pattern: *2G*SAU*LLG*.csv
+2026-06-03 17:14:30,852 - INFO -   2G_SAU: 0
+2026-06-03 17:14:30,853 - WARNING - No file found for pattern: *3G*SAU*LLG*.csv
+2026-06-03 17:14:30,854 - INFO -   3G_SAU: 0
+2026-06-03 17:14:30,855 - WARNING - No file found for pattern: *4G*SAU*LLG*.csv
+2026-06-03 17:14:30,855 - INFO -   4G_SAU: 0
+2026-06-03 17:14:30,856 - INFO - Found file: USN 2G PDP LLG.csv
+2026-06-03 17:14:31,678 - INFO -   2G_PDP: 15,718
+2026-06-03 17:14:32,541 - WARNING - No file found for pattern: *3G*PDP*LLG*.csv
+2026-06-03 17:14:32,543 - INFO -   3G_PDP: 0
+2026-06-03 17:14:32,544 - INFO - Found file: USN 4G PDP LLG.csv
+2026-06-03 17:14:33,294 - INFO -   4G_PDP: 530,784
