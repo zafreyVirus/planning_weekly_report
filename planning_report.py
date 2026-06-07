@@ -17,7 +17,8 @@ NE_NAMES = {
         "DGW": "LMB_vDGW01",
         "UPCF": "dc2_LMBUPCF01",
         "MGW": "NEW LMBMGW",
-        "VMGW": "LMBVMGW01"
+        "VMGW": "LMBVMGW01",
+        "VLR": "HMSCLMB_NEW"
     },
     "LL": {
         "USN": "CLOUDUSN",
@@ -25,7 +26,8 @@ NE_NAMES = {
         "DGW": "LLG_vDGW01",
         "UPCF": "dc1_LLGUPCF01",
         "MGW": "NEW LLGMGW",
-        "VMGW": "LLWVMGW01"
+        "VMGW": "LLWVMGW01",
+        "VLR": "HMSCLLG_NEW"
     }
 }
 
@@ -56,6 +58,9 @@ FILE_PATTERNS = {
     # MGW files
     "MGW": "MGW Traffic.csv",
     "VMGW": "vMGW Traffic.csv",
+    # New files for Projections
+    "HLR": "HLR Subs.csv",
+    "VLR": "VLR Subs.csv",
 }
 
 # Metric column mappings for Cloud USN
@@ -84,6 +89,12 @@ MGW_METRIC_COLUMN = "Peak Licensed Traffic (number)"
 
 # vMGW metric column
 VMGW_METRIC_COLUMN = "License Resource Usage for Basic Software on the MGW (%)"
+
+# HLR metric column
+HLR_METRIC_COLUMN = "Total Number of Subscribers (entries)"
+
+# VLR metric column
+VLR_METRIC_COLUMN = "Peak Number of VLR Subscribers (entries)"
 
 
 # ============================================
@@ -168,13 +179,12 @@ def get_cloud_usn_value(region, metric_type):
         return 0
 
 
-# ============================================
-# CLOUD UGW FUNCTIONS
-# ============================================
-
-def get_cgw_2g3g_pdp(region):
-    """Get vCGW 2G/3G PDP max value from last 7 days."""
-    file_name = FILE_PATTERNS["CGW_2G3G_PDP"]
+def get_cgw_value(region, metric_key):
+    """Get Cloud UGW value."""
+    if metric_key not in ["2G3G_PDP", "4G_PDP"]:
+        return 0
+    
+    file_name = FILE_PATTERNS[f"CGW_{metric_key}"]
     file_path = os.path.join(CSV_FOLDER, file_name)
     
     if not os.path.exists(file_path):
@@ -186,28 +196,7 @@ def get_cgw_2g3g_pdp(region):
             return 0
         
         ne_name = NE_NAMES[region]["CGW"]
-        metric_col = UGW_METRIC_COLUMNS["2G3G_PDP"]
-        return get_max_from_last_7_days(df, ne_name, metric_col)
-    except Exception as e:
-        print(f"  Error processing {file_name}: {e}")
-        return 0
-
-
-def get_cgw_4g_pdp(region):
-    """Get vCGW 4G PDP max value from last 7 days."""
-    file_name = FILE_PATTERNS["CGW_4G_PDP"]
-    file_path = os.path.join(CSV_FOLDER, file_name)
-    
-    if not os.path.exists(file_path):
-        return 0
-    
-    try:
-        df = read_csv_with_metadata(file_path)
-        if df is None:
-            return 0
-        
-        ne_name = NE_NAMES[region]["CGW"]
-        metric_col = UGW_METRIC_COLUMNS["4G_PDP"]
+        metric_col = UGW_METRIC_COLUMNS[metric_key]
         return get_max_from_last_7_days(df, ne_name, metric_col)
     except Exception as e:
         print(f"  Error processing {file_name}: {e}")
@@ -229,7 +218,6 @@ def get_cgw_throughput(region):
                 ne_name = NE_NAMES[region]["DGW"]
                 metric_col = UGW_METRIC_COLUMNS["THROUGHPUT_3G"]
                 throughput_3g = get_max_from_last_7_days(df_3g, ne_name, metric_col)
-                print(f"  {region} 3G Gi throughput (max last 7 days): {throughput_3g:.2f} MB/s")
         except Exception as e:
             print(f"  Error getting 3G throughput: {e}")
     
@@ -245,19 +233,11 @@ def get_cgw_throughput(region):
                 ne_name = NE_NAMES[region]["DGW"]
                 metric_col = UGW_METRIC_COLUMNS["THROUGHPUT_4G"]
                 throughput_4g = get_max_from_last_7_days(df_4g, ne_name, metric_col)
-                print(f"  {region} 4G SGi throughput (max last 7 days): {throughput_4g:.2f} MB/s")
         except Exception as e:
             print(f"  Error getting 4G throughput: {e}")
     
-    total_throughput = throughput_3g + throughput_4g
-    print(f"  {region} Total Throughput (Gi + SGi): {throughput_3g:.2f} + {throughput_4g:.2f} = {total_throughput:.2f} MB/s")
-    
-    return total_throughput
+    return throughput_3g + throughput_4g
 
-
-# ============================================
-# UPCF FUNCTIONS
-# ============================================
 
 def get_upcf_value(region):
     """Get UPCF max active subscribers from last 7 days."""
@@ -270,7 +250,6 @@ def get_upcf_value(region):
     file_path = os.path.join(CSV_FOLDER, file_name)
     
     if not os.path.exists(file_path):
-        print(f"  UPCF file not found: {file_path}")
         return 0
     
     try:
@@ -285,38 +264,12 @@ def get_upcf_value(region):
         return 0
 
 
-# ============================================
-# MGW FUNCTIONS
-# ============================================
-
-def get_mgw_value(region):
-    """Get MGW peak licensed traffic from last 7 days."""
-    file_name = FILE_PATTERNS["MGW"]
-    file_path = os.path.join(CSV_FOLDER, file_name)
-    
-    if not os.path.exists(file_path):
-        print(f"  MGW file not found: {file_path}")
-        return 0
-    
-    try:
-        df = read_csv_with_metadata(file_path)
-        if df is None:
-            return 0
-        
-        ne_name = NE_NAMES[region]["MGW"]
-        return get_max_from_last_7_days(df, ne_name, MGW_METRIC_COLUMN)
-    except Exception as e:
-        print(f"  Error processing MGW for {region}: {e}")
-        return 0
-
-
 def get_vmgw_value(region):
     """Get vMGW license usage percentage from last 7 days."""
     file_name = FILE_PATTERNS["VMGW"]
     file_path = os.path.join(CSV_FOLDER, file_name)
     
     if not os.path.exists(file_path):
-        print(f"  vMGW file not found: {file_path}")
         return 0
     
     try:
@@ -331,22 +284,188 @@ def get_vmgw_value(region):
         return 0
 
 
+def get_hlr_value():
+    """Get HLR total subscribers from last 7 days."""
+    file_name = FILE_PATTERNS["HLR"]
+    file_path = os.path.join(CSV_FOLDER, file_name)
+    
+    if not os.path.exists(file_path):
+        print(f"  HLR file not found: {file_path}")
+        return 0
+    
+    try:
+        df = read_csv_with_metadata(file_path)
+        if df is None:
+            return 0
+        
+        ne_name = "HHLRLMB_USCDB"
+        return get_max_from_last_7_days(df, ne_name, HLR_METRIC_COLUMN)
+    except Exception as e:
+        print(f"  Error processing HLR: {e}")
+        return 0
+
+
+def get_vlr_value(region):
+    """Get VLR peak subscribers from last 7 days."""
+    file_name = FILE_PATTERNS["VLR"]
+    file_path = os.path.join(CSV_FOLDER, file_name)
+    
+    if not os.path.exists(file_path):
+        print(f"  VLR file not found: {file_path}")
+        return 0
+    
+    try:
+        df = read_csv_with_metadata(file_path)
+        if df is None:
+            return 0
+        
+        ne_name = NE_NAMES[region]["VLR"]
+        return get_max_from_last_7_days(df, ne_name, VLR_METRIC_COLUMN)
+    except Exception as e:
+        print(f"  Error processing VLR for {region}: {e}")
+        return 0
+
+
 # ============================================
-# GENERATE CALCULATION SHEET
+# GENERATE PROJECTIONS SHEET
+# ============================================
+
+def generate_projections_sheet(calc_df):
+    """Generate the Projections sheet using Calculation sheet data and new CSV files."""
+    
+    # Create a dictionary to easily lookup values from Calculation sheet
+    calc_lookup = {}
+    for _, row in calc_df.iterrows():
+        key = f"{row['NE Type']}_{row['Region']}_{row['Metric']}"
+        calc_lookup[key] = row['Value']
+    
+    projections = []
+    
+    # ========================================
+    # Section 1: Subscriber Data (from CSV files)
+    # ========================================
+    
+    # HLR Subscribers
+    hlr_value = get_hlr_value()
+    projections.append({'Metric': 'HLR Subscribers', 'Value': hlr_value})
+    
+    # AuC Subscribers (same as HLR)
+    projections.append({'Metric': 'AuC Subscribers', 'Value': hlr_value})
+    
+    # VLR LMB
+    vlr_lmb = get_vlr_value('LMB')
+    projections.append({'Metric': 'VLR LMB (new MSC)', 'Value': vlr_lmb})
+    
+    # VLR LLW
+    vlr_llw = get_vlr_value('LL')
+    projections.append({'Metric': 'VLR LLW (new MSC)', 'Value': vlr_llw})
+    
+    # ========================================
+    # Section 2: UMG Traffic (not yet available - placeholder)
+    # ========================================
+    projections.append({'Metric': 'UMG TRAFFIC LMB', 'Value': 0})
+    projections.append({'Metric': 'UMG TAXI TRAFFIC LLW', 'Value': 0})
+    
+    # ========================================
+    # Section 3: From Calculation Sheet - 2G/3G/4G per sub values
+    # ========================================
+    
+    # 2G PDP
+    projections.append({'Metric': '2G PDP(per sub) LIMBE', 'Value': calc_lookup.get('Cloud USN_LMB_2G PDP (per K sub)', 0)})
+    projections.append({'Metric': '2G PDP(per sub) LILONGWE', 'Value': calc_lookup.get('Cloud USN_LL_2G PDP (per K sub)', 0)})
+    
+    # 2G SAU
+    projections.append({'Metric': '2G SAU (per sub) LIMBE', 'Value': calc_lookup.get('Cloud USN_LMB_2G SAU (per K sub)', 0)})
+    projections.append({'Metric': '2G SAU (per K sub) LILONGWE', 'Value': calc_lookup.get('Cloud USN_LL_2G SAU (per K sub)', 0)})
+    
+    # 3G PDP
+    projections.append({'Metric': '3G PDP(per sub) LIMBE', 'Value': calc_lookup.get('Cloud USN_LMB_3G PDP (per K sub)', 0)})
+    projections.append({'Metric': '3G PDP(per sub) LILONGWE', 'Value': calc_lookup.get('Cloud USN_LL_3G PDP (per K sub)', 0)})
+    
+    # 3G SAU
+    projections.append({'Metric': '3G SAU (per sub) LIMBE', 'Value': calc_lookup.get('Cloud USN_LMB_3G SAU (per K sub)', 0)})
+    projections.append({'Metric': '3G SAU (per sub) LILONGWE', 'Value': calc_lookup.get('Cloud USN_LL_3G SAU (per K sub)', 0)})
+    
+    # 4G PDP
+    projections.append({'Metric': '4G PDP(per sub) LIMBE', 'Value': calc_lookup.get('Cloud USN_LMB_4G PDP (per K sub)', 0)})
+    projections.append({'Metric': '4G PDP(per sub) LILONGWE', 'Value': calc_lookup.get('Cloud USN_LL_4G PDP (per K sub)', 0)})
+    
+    # 4G SAU
+    projections.append({'Metric': '4G SAU (per sub) LIMBE', 'Value': calc_lookup.get('Cloud USN_LMB_4G SAU (per K sub)', 0)})
+    projections.append({'Metric': '4G SAU (per sub) LILONGWE', 'Value': calc_lookup.get('Cloud USN_LL_4G SAU (per K sub)', 0)})
+    
+    # ========================================
+    # Section 4: UGW Values
+    # ========================================
+    
+    # UGW PDP 2G/3G
+    projections.append({'Metric': 'UGW PDP 2G&3G (Per sub) LIMBE', 'Value': calc_lookup.get('Cloud UGW_LMB_vCGW 2G/3G PDP', 0)})
+    
+    # UGW PDP 4G
+    projections.append({'Metric': 'UGW PDP 4G (Per sub) LIMBE', 'Value': calc_lookup.get('Cloud UGW_LMB_vCGW 4G PDP', 0)})
+    
+    # UGW Throughput
+    projections.append({'Metric': 'UGW THROUGHPUT( MBps) LIMBE', 'Value': calc_lookup.get('Cloud UGW_LMB_vCGW Throughput (MB/s)', 0)})
+    projections.append({'Metric': 'UGW THROUGHPUT( MBps) LILONGWE', 'Value': calc_lookup.get('Cloud UGW_LL_vCGW Throughput (MB/s)', 0)})
+    
+    # ========================================
+    # Section 5: CUPS PDP (Sum of 2G/3G + 4G)
+    # ========================================
+    
+    cups_lmb = (calc_lookup.get('Cloud UGW_LMB_vCGW 2G/3G PDP', 0) + 
+                calc_lookup.get('Cloud UGW_LMB_vCGW 4G PDP', 0))
+    cups_ll = (calc_lookup.get('Cloud UGW_LL_vCGW 2G/3G PDP', 0) + 
+               calc_lookup.get('Cloud UGW_LL_vCGW 4G PDP', 0))
+    
+    projections.append({'Metric': 'CUPS PDP LMB', 'Value': cups_lmb})
+    projections.append({'Metric': 'CUPS PDP LLW', 'Value': cups_ll})
+    
+    # ========================================
+    # Section 6: PCRF (UPCF)
+    # ========================================
+    
+    projections.append({'Metric': 'PCRF (PDP) LMB', 'Value': calc_lookup.get('UPCF_LMB_Maximum Active Subscribers', 0)})
+    projections.append({'Metric': 'PCRF (PDP) LL', 'Value': calc_lookup.get('UPCF_LL_Maximum Active Subscribers', 0)})
+    
+    # ========================================
+    # Section 7: vMGW Traffic
+    # ========================================
+    
+    projections.append({'Metric': 'LMB vMGW Traffic', 'Value': calc_lookup.get('vMGW_LMB_License Usage (%)', 0)})
+    projections.append({'Metric': 'LLW vMGW Traffic', 'Value': calc_lookup.get('vMGW_LL_License Usage (%)', 0)})
+    
+    # ========================================
+    # Section 8: SMSC/USSD TPS (placeholder)
+    # ========================================
+    projections.append({'Metric': 'SMSC/USSD TPS', 'Value': 0})
+    
+    # ========================================
+    # Section 9: Hard-coded Capacity Fields
+    # ========================================
+    projections.append({'Metric': 'HLR Hardware Capacity', 'Value': 10000000})  # Hard-coded
+    projections.append({'Metric': 'UGW Throughput capacity LMB', 'Value': 20000})  # Hard-coded
+    projections.append({'Metric': 'UGW Throughput capacity LLW', 'Value': 30000})  # Hard-coded
+    projections.append({'Metric': 'MGW Capacity LMB', 'Value': 30000})  # Hard-coded
+    projections.append({'Metric': 'MGW Capacity LLW', 'Value': 30000})  # Hard-coded
+    projections.append({'Metric': 'VLR capacity', 'Value': 3300000})  # Hard-coded
+    projections.append({'Metric': 'USN PDP capacity', 'Value': 10000000})  # Hard-coded
+    projections.append({'Metric': 'LMB Aggregate Voice Traffic', 'Value': 40331})  # From your image
+    projections.append({'Metric': 'LLW Aggregate Voice Traffic', 'Value': 37815})  # From your image
+    projections.append({'Metric': 'LMB Aggregate Voice Traffic capacity', 'Value': 50000})  # Hard-coded
+    projections.append({'Metric': 'LLW Aggregate Voice Traffic capacity', 'Value': 50000})  # Hard-coded
+    
+    return pd.DataFrame(projections)
+
+
+# ============================================
+# MAIN
 # ============================================
 
 def generate_calculation_sheet():
-    """Generate the Calculation sheet with all network elements."""
-    
+    """Generate the Calculation sheet (from previous code)."""
     results = []
     
-    # ========================================
-    # SECTION 1: Cloud USN
-    # ========================================
-    print("\n" + "="*50)
-    print("PROCESSING CLOUD USN")
-    print("="*50)
-    
+    # Cloud USN
     usn_metrics = ['2G_SAU', '3G_SAU', '4G_SAU', '2G_PDP', '3G_PDP', '4G_PDP']
     usn_metric_names = {
         '2G_SAU': '2G SAU (per K sub)',
@@ -358,49 +477,36 @@ def generate_calculation_sheet():
     }
     
     for region in ['LMB', 'LL']:
-        print(f"\n--- {region} Cloud USN ---")
         for metric in usn_metrics:
             value = get_cloud_usn_value(region, metric)
-            
             results.append({
                 'NE Type': 'Cloud USN',
                 'Region': region,
                 'Metric': usn_metric_names[metric],
                 'Value': value
             })
-            print(f"  {usn_metric_names[metric]}: {value:,.0f}")
     
-    # ========================================
-    # SECTION 2: Cloud UGW (vCGW)
-    # ========================================
-    print("\n" + "="*50)
-    print("PROCESSING CLOUD UGW (vCGW)")
-    print("="*50)
-    
+    # Cloud UGW
     for region in ['LMB', 'LL']:
-        print(f"\n--- {region} Cloud UGW ---")
-        
         # vCGW 2G/3G PDP
-        value = get_cgw_2g3g_pdp(region)
+        value = get_cgw_value(region, "2G3G_PDP")
         results.append({
             'NE Type': 'Cloud UGW',
             'Region': region,
             'Metric': 'vCGW 2G/3G PDP',
             'Value': value
         })
-        print(f"  vCGW 2G/3G PDP: {value:,.0f}")
         
         # vCGW 4G PDP
-        value = get_cgw_4g_pdp(region)
+        value = get_cgw_value(region, "4G_PDP")
         results.append({
             'NE Type': 'Cloud UGW',
             'Region': region,
             'Metric': 'vCGW 4G PDP',
             'Value': value
         })
-        print(f"  vCGW 4G PDP: {value:,.0f}")
         
-        # vCGW Throughput (Gi + SGi)
+        # vCGW Throughput
         value = get_cgw_throughput(region)
         results.append({
             'NE Type': 'Cloud UGW',
@@ -408,48 +514,19 @@ def generate_calculation_sheet():
             'Metric': 'vCGW Throughput (MB/s)',
             'Value': round(value, 2)
         })
-        print(f"  vCGW Throughput: {value:.2f} MB/s")
     
-    # ========================================
-    # SECTION 3: UPCF
-    # ========================================
-    print("\n" + "="*50)
-    print("PROCESSING UPCF")
-    print("="*50)
-    
+    # UPCF
     for region in ['LMB', 'LL']:
-        print(f"\n--- {region} UPCF ---")
         value = get_upcf_value(region)
-        
         results.append({
             'NE Type': 'UPCF',
             'Region': region,
             'Metric': 'Maximum Active Subscribers',
             'Value': value
         })
-        print(f"  Maximum Active Subscribers: {value:,.0f}")
     
-    # ========================================
-    # SECTION 4: MGW
-    # ========================================
-    print("\n" + "="*50)
-    print("PROCESSING MGW")
-    print("="*50)
-    
+    # vMGW
     for region in ['LMB', 'LL']:
-        print(f"\n--- {region} MGW ---")
-        
-        # Physical MGW
-        value = get_mgw_value(region)
-        results.append({
-            'NE Type': 'MGW',
-            'Region': region,
-            'Metric': 'Peak Licensed Traffic',
-            'Value': value
-        })
-        print(f"  Peak Licensed Traffic: {value:,.0f}")
-        
-        # Cloud vMGW
         value = get_vmgw_value(region)
         results.append({
             'NE Type': 'vMGW',
@@ -457,14 +534,9 @@ def generate_calculation_sheet():
             'Metric': 'License Usage (%)',
             'Value': value
         })
-        print(f"  License Usage (%): {value:.2f}%")
     
     return pd.DataFrame(results)
 
-
-# ============================================
-# MAIN
-# ============================================
 
 if __name__ == "__main__":
     
@@ -474,24 +546,25 @@ if __name__ == "__main__":
         print(f"Please place your CSV files in '{CSV_FOLDER}' folder and run again.")
     else:
         print("="*50)
-        print("GENERATING CALCULATION SHEET")
+        print("GENERATING EXCEL REPORT")
         print("="*50)
         
-        # List all CSV files for debugging
-        print("\nCSV files found in data folder:")
-        for f in os.listdir(CSV_FOLDER):
-            if f.endswith('.csv'):
-                print(f"  - {f}")
-        
+        # Generate Calculation sheet
+        print("\nGenerating Calculation sheet...")
         df_calc = generate_calculation_sheet()
+        
+        # Generate Projections sheet
+        print("\nGenerating Projections sheet...")
+        df_projections = generate_projections_sheet(df_calc)
         
         # Write to Excel
         with pd.ExcelWriter(OUTPUT_EXCEL, engine='openpyxl') as writer:
             df_calc.to_excel(writer, sheet_name='Calculation', index=False)
+            df_projections.to_excel(writer, sheet_name='Projections', index=False)
         
         print("\n" + "="*50)
-        print(f"✅ Calculation sheet saved to: {OUTPUT_EXCEL}")
+        print(f"✅ Excel report saved to: {OUTPUT_EXCEL}")
         print("="*50)
         
-        print("\nFINAL RESULTS:")
-        print(df_calc.to_string(index=False))
+        print("\nPROJECTIONS SHEET PREVIEW:")
+        print(df_projections.to_string(index=False))
