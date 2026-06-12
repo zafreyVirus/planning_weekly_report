@@ -328,10 +328,161 @@ def get_vmgw_value(region):
 # SHEET 1: CALCULATION
 # ============================================
 
+# def generate_calculation_sheet():
+#     calculation_data = []
+
+#     # Cloud USN LMB
+#     for metric_display, metric_key in [
+#         ("vUSN 2G SAU (per k sub) LMB", "2G_SAU"),
+#         ("vUSN 3G SAU (per k sub) LMB", "3G_SAU"),
+#         ("vUSN 4G SAU (per k sub) LMB", "4G_SAU"),
+#         ("vUSN 2G PDP (per k sub) LMB", "2G_PDP"),
+#         ("vUSN 3G PDP (per k sub) LMB", "3G_PDP"),
+#         ("vUSN 4G PDP (per k sub) LMB", "4G_PDP"),
+#     ]:
+#         value = get_cloud_usn_value("LMB", metric_key)
+#         calculation_data.append({
+#             'Network Element': 'Cloud USN LMB',
+#             'Metric': metric_display,
+#             'vUSN LMB': value,
+#             'vUSN LLG': None,
+#             'Gi UGW (MB/s)': None,
+#             'SGi UGW (MB/s)': None,
+#         })
+
+#     # Cloud USN LLG
+#     for metric_display, metric_key in [
+#         ("vUSN 2G SAU (per k sub) LLG", "2G_SAU"),
+#         ("vUSN 3G SAU (per k sub) LLG", "3G_SAU"),
+#         ("vUSN 4G SAU (per k sub) LLG", "4G_SAU"),
+#         ("vUSN 2G PDP (per k sub) LLG", "2G_PDP"),
+#         ("vUSN 3G PDP (per k sub) LLG", "3G_PDP"),
+#         ("vUSN 4G PDP (per k sub) LLG", "4G_PDP"),
+#     ]:
+#         value = get_cloud_usn_value("LL", metric_key)
+#         calculation_data.append({
+#             'Network Element': 'Cloud USN LLG',
+#             'Metric': metric_display,
+#             'vUSN LMB': None,
+#             'vUSN LLG': value,
+#             'Gi UGW (MB/s)': None,
+#             'SGi UGW (MB/s)': None,
+#         })
+
+#     # Cloud UGW Limbe
+#     calculation_data.append({
+#         'Network Element': 'Cloud UGW Limbe',
+#         'Metric': 'vCGW 2G/3G PDP LMB',
+#         'vUSN LMB': None,
+#         'vUSN LLG': get_cgw_value("LMB", "2G3G_PDP"),
+#         'Gi UGW (MB/s)': None,
+#         'SGi UGW (MB/s)': None,
+#     })
+#     calculation_data.append({
+#         'Network Element': 'Cloud UGW Limbe',
+#         'Metric': 'vCGW 4G PDP LMB',
+#         'vUSN LMB': None,
+#         'vUSN LLG': get_cgw_value("LMB", "4G_PDP"),
+#         'Gi UGW (MB/s)': None,
+#         'SGi UGW (MB/s)': None,
+#     })
+#     calculation_data.append({
+#         'Network Element': 'Cloud UGW Limbe',
+#         'Metric': 'vDGW Throughput LMB',
+#         'vUSN LMB': None,
+#         'vUSN LLG': None,
+#         'Gi UGW (MB/s)': round(get_cgw_throughput_gi("LMB"), 2),
+#         'SGi UGW (MB/s)': round(get_cgw_throughput_sgi("LMB"), 2),
+#     })
+
+#     # Cloud UGW LLG
+#     calculation_data.append({
+#         'Network Element': 'Cloud UGW LLG',
+#         'Metric': 'vCGW 2G/3G PDP LLG',
+#         'vUSN LMB': None,
+#         'vUSN LLG': get_cgw_value("LL", "2G3G_PDP"),
+#         'Gi UGW (MB/s)': None,
+#         'SGi UGW (MB/s)': None,
+#     })
+#     calculation_data.append({
+#         'Network Element': 'Cloud UGW LLG',
+#         'Metric': 'vCGW 4G PDP LLG',
+#         'vUSN LMB': None,
+#         'vUSN LLG': get_cgw_value("LL", "4G_PDP"),
+#         'Gi UGW (MB/s)': None,
+#         'SGi UGW (MB/s)': None,
+#     })
+#     calculation_data.append({
+#         'Network Element': 'Cloud UGW LLG',
+#         'Metric': 'vDGW Throughput LLG',
+#         'vUSN LMB': None,
+#         'vUSN LLG': None,
+#         'Gi UGW (MB/s)': round(get_cgw_throughput_gi("LL"), 2),
+#         'SGi UGW (MB/s)': round(get_cgw_throughput_sgi("LL"), 2),
+#     })
+
+#     # UPCF
+#     calculation_data.append({
+#         'Network Element': 'UPCF',
+#         'Metric': 'UPCF PDP LMB',
+#         'vUSN LMB': get_upcf_value("LMB"),
+#         'vUSN LLG': None,
+#         'Gi UGW (MB/s)': None,
+#         'SGi UGW (MB/s)': None,
+#     })
+#     calculation_data.append({
+#         'Network Element': 'UPCF',
+#         'Metric': 'UPCF PDP LLG',
+#         'vUSN LMB': None,
+#         'vUSN LLG': get_upcf_value("LL"),
+#         'Gi UGW (MB/s)': None,
+#         'SGi UGW (MB/s)': None,
+#     })
+
+#     # MGW
+#     calculation_data.append({
+#         'Network Element': 'MGW',
+#         'Metric': 'Traffic (Erlangs) LMB',
+#         'vUSN LMB': get_mgw_value("LMB"),
+#         'vUSN LLG': None,
+#         'Gi UGW (MB/s)': None,
+#         'SGi UGW (MB/s)': None,
+#     })
+#     calculation_data.append({
+#         'Network Element': 'MGW',
+#         'Metric': 'Traffic (Erlangs) LLG',
+#         'vUSN LMB': None,
+#         'vUSN LLG': get_mgw_value("LL"),
+#         'Gi UGW (MB/s)': None,
+#         'SGi UGW (MB/s)': None,
+#     })
+
+#     # vMGW
+#     calculation_data.append({
+#         'Network Element': 'vMGW',
+#         'Metric': 'Traffic (Erlangs) LMB',
+#         'vUSN LMB': get_vmgw_value("LMB"),
+#         'vUSN LLG': None,
+#         'Gi UGW (MB/s)': None,
+#         'SGi UGW (MB/s)': None,
+#     })
+#     calculation_data.append({
+#         'Network Element': 'vMGW',
+#         'Metric': 'Traffic (Erlangs) LLG',
+#         'vUSN LMB': None,
+#         'vUSN LLG': get_vmgw_value("LL"),
+#         'Gi UGW (MB/s)': None,
+#         'SGi UGW (MB/s)': None,
+#     })
+
+#     return pd.DataFrame(calculation_data)
+
 def generate_calculation_sheet():
     calculation_data = []
 
-    # Cloud USN LMB
+    # ========================================
+    # Cloud USN LMB (vUSN LMB column)
+    # ========================================
     for metric_display, metric_key in [
         ("vUSN 2G SAU (per k sub) LMB", "2G_SAU"),
         ("vUSN 3G SAU (per k sub) LMB", "3G_SAU"),
@@ -348,9 +499,12 @@ def generate_calculation_sheet():
             'vUSN LLG': None,
             'Gi UGW (MB/s)': None,
             'SGi UGW (MB/s)': None,
+            'Value': None,
         })
 
-    # Cloud USN LLG
+    # ========================================
+    # Cloud USN LLG (vUSN LLG column)
+    # ========================================
     for metric_display, metric_key in [
         ("vUSN 2G SAU (per k sub) LLG", "2G_SAU"),
         ("vUSN 3G SAU (per k sub) LLG", "3G_SAU"),
@@ -367,9 +521,13 @@ def generate_calculation_sheet():
             'vUSN LLG': value,
             'Gi UGW (MB/s)': None,
             'SGi UGW (MB/s)': None,
+            'Value': None,
         })
 
-    # Cloud UGW Limbe
+    # ========================================
+    # Cloud UGW Limbe (LMB)
+    # ========================================
+    # vCGW 2G/3G PDP LMB - goes to vUSN LLG column
     calculation_data.append({
         'Network Element': 'Cloud UGW Limbe',
         'Metric': 'vCGW 2G/3G PDP LMB',
@@ -377,7 +535,10 @@ def generate_calculation_sheet():
         'vUSN LLG': get_cgw_value("LMB", "2G3G_PDP"),
         'Gi UGW (MB/s)': None,
         'SGi UGW (MB/s)': None,
+        'Value': None,
     })
+    
+    # vCGW 4G PDP LMB - goes to vUSN LLG column
     calculation_data.append({
         'Network Element': 'Cloud UGW Limbe',
         'Metric': 'vCGW 4G PDP LMB',
@@ -385,7 +546,10 @@ def generate_calculation_sheet():
         'vUSN LLG': get_cgw_value("LMB", "4G_PDP"),
         'Gi UGW (MB/s)': None,
         'SGi UGW (MB/s)': None,
+        'Value': None,
     })
+    
+    # vDGW Throughput LMB - goes to Gi and SGi columns
     calculation_data.append({
         'Network Element': 'Cloud UGW Limbe',
         'Metric': 'vDGW Throughput LMB',
@@ -393,9 +557,13 @@ def generate_calculation_sheet():
         'vUSN LLG': None,
         'Gi UGW (MB/s)': round(get_cgw_throughput_gi("LMB"), 2),
         'SGi UGW (MB/s)': round(get_cgw_throughput_sgi("LMB"), 2),
+        'Value': None,
     })
 
-    # Cloud UGW LLG
+    # ========================================
+    # Cloud UGW LLG (Lilongwe)
+    # ========================================
+    # vCGW 2G/3G PDP LLG - goes to vUSN LLG column
     calculation_data.append({
         'Network Element': 'Cloud UGW LLG',
         'Metric': 'vCGW 2G/3G PDP LLG',
@@ -403,7 +571,10 @@ def generate_calculation_sheet():
         'vUSN LLG': get_cgw_value("LL", "2G3G_PDP"),
         'Gi UGW (MB/s)': None,
         'SGi UGW (MB/s)': None,
+        'Value': None,
     })
+    
+    # vCGW 4G PDP LLG - goes to vUSN LLG column
     calculation_data.append({
         'Network Element': 'Cloud UGW LLG',
         'Metric': 'vCGW 4G PDP LLG',
@@ -411,7 +582,10 @@ def generate_calculation_sheet():
         'vUSN LLG': get_cgw_value("LL", "4G_PDP"),
         'Gi UGW (MB/s)': None,
         'SGi UGW (MB/s)': None,
+        'Value': None,
     })
+    
+    # vDGW Throughput LLG - goes to Gi and SGi columns
     calculation_data.append({
         'Network Element': 'Cloud UGW LLG',
         'Metric': 'vDGW Throughput LLG',
@@ -419,64 +593,79 @@ def generate_calculation_sheet():
         'vUSN LLG': None,
         'Gi UGW (MB/s)': round(get_cgw_throughput_gi("LL"), 2),
         'SGi UGW (MB/s)': round(get_cgw_throughput_sgi("LL"), 2),
+        'Value': None,
     })
 
-    # UPCF
+    # ========================================
+    # UPCF - Now using Value column instead of vUSN
+    # ========================================
     calculation_data.append({
         'Network Element': 'UPCF',
         'Metric': 'UPCF PDP LMB',
-        'vUSN LMB': get_upcf_value("LMB"),
+        'vUSN LMB': None,
         'vUSN LLG': None,
         'Gi UGW (MB/s)': None,
         'SGi UGW (MB/s)': None,
+        'Value': get_upcf_value("LMB"),
     })
+    
     calculation_data.append({
         'Network Element': 'UPCF',
         'Metric': 'UPCF PDP LLG',
         'vUSN LMB': None,
-        'vUSN LLG': get_upcf_value("LL"),
-        'Gi UGW (MB/s)': None,
-        'SGi UGW (MB/s)': None,
-    })
-
-    # MGW
-    calculation_data.append({
-        'Network Element': 'MGW',
-        'Metric': 'Traffic (Erlangs) LMB',
-        'vUSN LMB': get_mgw_value("LMB"),
         'vUSN LLG': None,
         'Gi UGW (MB/s)': None,
         'SGi UGW (MB/s)': None,
+        'Value': get_upcf_value("LL"),
     })
+
+    # ========================================
+    # MGW (Physical) - Using Value column
+    # ========================================
+    calculation_data.append({
+        'Network Element': 'MGW',
+        'Metric': 'Traffic (Erlangs) LMB',
+        'vUSN LMB': None,
+        'vUSN LLG': None,
+        'Gi UGW (MB/s)': None,
+        'SGi UGW (MB/s)': None,
+        'Value': get_mgw_value("LMB"),
+    })
+    
     calculation_data.append({
         'Network Element': 'MGW',
         'Metric': 'Traffic (Erlangs) LLG',
         'vUSN LMB': None,
-        'vUSN LLG': get_mgw_value("LL"),
-        'Gi UGW (MB/s)': None,
-        'SGi UGW (MB/s)': None,
-    })
-
-    # vMGW
-    calculation_data.append({
-        'Network Element': 'vMGW',
-        'Metric': 'Traffic (Erlangs) LMB',
-        'vUSN LMB': get_vmgw_value("LMB"),
         'vUSN LLG': None,
         'Gi UGW (MB/s)': None,
         'SGi UGW (MB/s)': None,
+        'Value': get_mgw_value("LL"),
     })
+
+    # ========================================
+    # vMGW (Cloud) - Using Value column
+    # ========================================
+    calculation_data.append({
+        'Network Element': 'vMGW',
+        'Metric': 'Traffic (Erlangs) LMB',
+        'vUSN LMB': None,
+        'vUSN LLG': None,
+        'Gi UGW (MB/s)': None,
+        'SGi UGW (MB/s)': None,
+        'Value': get_vmgw_value("LMB"),
+    })
+    
     calculation_data.append({
         'Network Element': 'vMGW',
         'Metric': 'Traffic (Erlangs) LLG',
         'vUSN LMB': None,
-        'vUSN LLG': get_vmgw_value("LL"),
+        'vUSN LLG': None,
         'Gi UGW (MB/s)': None,
         'SGi UGW (MB/s)': None,
+        'Value': get_vmgw_value("LL"),
     })
 
     return pd.DataFrame(calculation_data)
-
 
 # ============================================
 # SHEET 2: PROJECTIONS
@@ -682,26 +871,109 @@ def generate_commercial_license_redundancy_sheet(commercial_df):
 # STYLING FUNCTIONS
 # ============================================
 
+# def write_calculation_sheet(workbook, df_calc):
+#     """Write the Calculation sheet directly via openpyxl — no to_excel().
+#     This gives us full control over row layout so NE merging works reliably.
+#     """
+#     ws = workbook.create_sheet('Calculation', 0)
+
+#     column_widths = {'A': 25, 'B': 38, 'C': 18, 'D': 18, 'E': 18, 'F': 18}
+#     for col, width in column_widths.items():
+#         ws.column_dimensions[col].width = width
+
+#     # ── Row 1: Title ───────────────────────────────────────────────────────
+#     ws.row_dimensions[1].height = 28
+#     title_cell = ws.cell(row=1, column=1, value="Network Element Capacity Calculations")
+#     title_cell.font = Font(bold=True, size=14, color="FFFFFF")
+#     title_cell.fill = SECTION_HEADER_FILL
+#     title_cell.alignment = CENTER_ALIGN
+#     ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=6)
+
+#     # ── Row 2: Column headers ──────────────────────────────────────────────
+#     headers = ['Network Element', 'Metric', 'vUSN LMB', 'vUSN LLG', 'Gi UGW (MB/s)', 'SGi UGW (MB/s)']
+#     for col_idx, header in enumerate(headers, start=1):
+#         cell = ws.cell(row=2, column=col_idx, value=header)
+#         cell.font = HEADER_FONT
+#         cell.fill = HEADER_FILL
+#         cell.alignment = CENTER_ALIGN
+#         cell.border = BORDER
+
+#     # ── Rows 3+: Data — identify groups while writing ──────────────────────
+#     # We track NE groups here directly from the DataFrame (NE values are intact).
+#     cols = ['Network Element', 'Metric', 'vUSN LMB', 'vUSN LLG', 'Gi UGW (MB/s)', 'SGi UGW (MB/s)']
+#     data_start_row = 3
+
+#     # First pass: build group list
+#     groups = []
+#     current_ne = None
+#     group_start = data_start_row
+#     for i, row in df_calc.iterrows():
+#         excel_row = data_start_row + i
+#         ne = row['Network Element']
+#         if ne != current_ne:
+#             if current_ne is not None:
+#                 groups.append({'name': current_ne, 'start': group_start, 'end': excel_row - 1})
+#             current_ne = ne
+#             group_start = excel_row
+#     if current_ne is not None:
+#         groups.append({'name': current_ne, 'start': group_start, 'end': data_start_row + len(df_calc) - 1})
+
+#     # Second pass: write all data cells
+#     for i, row in df_calc.iterrows():
+#         excel_row = data_start_row + i
+#         is_alt = i % 2 == 0  # alternating based on data row index
+
+#         for col_idx, col_name in enumerate(cols, start=1):
+#             val = row[col_name] if col_name in row else None
+#             # Skip NE column for now — handled via merge below
+#             if col_idx == 1:
+#                 continue
+#             cell = ws.cell(row=excel_row, column=col_idx)
+#             cell.value = None if (val is None or (isinstance(val, float) and pd.isna(val))) else val
+#             cell.border = BORDER
+#             cell.alignment = LEFT_ALIGN if col_idx == 2 else RIGHT_ALIGN
+#             if isinstance(cell.value, (int, float)):
+#                 cell.number_format = '#,##0.00' if col_idx >= 5 else '#,##0'
+#             if is_alt:
+#                 cell.fill = ALTERNATE_ROW_FILL
+
+#     # Third pass: write + merge Network Element column
+#     for grp in groups:
+#         s, e = grp['start'], grp['end']
+#         # Style all rows in the group for col A border/fill first
+#         for r in range(s, e + 1):
+#             c = ws.cell(row=r, column=1)
+#             c.fill = NE_CELL_FILL
+#             c.border = BORDER
+#         # Merge if multi-row
+#         if s < e:
+#             ws.merge_cells(start_row=s, start_column=1, end_row=e, end_column=1)
+#         # Set value and style on the top (anchor) cell
+#         anchor = ws.cell(row=s, column=1)
+#         anchor.value = grp['name']
+#         anchor.font = Font(bold=True, size=11, color="1a4a6e")
+#         anchor.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+#         anchor.fill = NE_CELL_FILL
+#         anchor.border = BORDER
+
 def write_calculation_sheet(workbook, df_calc):
-    """Write the Calculation sheet directly via openpyxl — no to_excel().
-    This gives us full control over row layout so NE merging works reliably.
-    """
+    """Write the Calculation sheet directly via openpyxl."""
     ws = workbook.create_sheet('Calculation', 0)
 
-    column_widths = {'A': 25, 'B': 38, 'C': 18, 'D': 18, 'E': 18, 'F': 18}
+    column_widths = {'A': 25, 'B': 38, 'C': 18, 'D': 18, 'E': 18, 'F': 18, 'G': 18}
     for col, width in column_widths.items():
         ws.column_dimensions[col].width = width
 
-    # ── Row 1: Title ───────────────────────────────────────────────────────
+    # Row 1: Title
     ws.row_dimensions[1].height = 28
     title_cell = ws.cell(row=1, column=1, value="Network Element Capacity Calculations")
     title_cell.font = Font(bold=True, size=14, color="FFFFFF")
     title_cell.fill = SECTION_HEADER_FILL
     title_cell.alignment = CENTER_ALIGN
-    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=6)
+    ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=7)
 
-    # ── Row 2: Column headers ──────────────────────────────────────────────
-    headers = ['Network Element', 'Metric', 'vUSN LMB', 'vUSN LLG', 'Gi UGW (MB/s)', 'SGi UGW (MB/s)']
+    # Row 2: Column headers
+    headers = ['Network Element', 'Metric', 'vUSN LMB', 'vUSN LLG', 'Gi UGW (MB/s)', 'SGi UGW (MB/s)', 'Value']
     for col_idx, header in enumerate(headers, start=1):
         cell = ws.cell(row=2, column=col_idx, value=header)
         cell.font = HEADER_FONT
@@ -709,12 +981,11 @@ def write_calculation_sheet(workbook, df_calc):
         cell.alignment = CENTER_ALIGN
         cell.border = BORDER
 
-    # ── Rows 3+: Data — identify groups while writing ──────────────────────
-    # We track NE groups here directly from the DataFrame (NE values are intact).
-    cols = ['Network Element', 'Metric', 'vUSN LMB', 'vUSN LLG', 'Gi UGW (MB/s)', 'SGi UGW (MB/s)']
+    # Data rows
+    cols = ['Network Element', 'Metric', 'vUSN LMB', 'vUSN LLG', 'Gi UGW (MB/s)', 'SGi UGW (MB/s)', 'Value']
     data_start_row = 3
 
-    # First pass: build group list
+    # Build group list
     groups = []
     current_ne = None
     group_start = data_start_row
@@ -729,37 +1000,36 @@ def write_calculation_sheet(workbook, df_calc):
     if current_ne is not None:
         groups.append({'name': current_ne, 'start': group_start, 'end': data_start_row + len(df_calc) - 1})
 
-    # Second pass: write all data cells
+    # Write all data cells
     for i, row in df_calc.iterrows():
         excel_row = data_start_row + i
-        is_alt = i % 2 == 0  # alternating based on data row index
+        is_alt = i % 2 == 0
 
         for col_idx, col_name in enumerate(cols, start=1):
-            val = row[col_name] if col_name in row else None
-            # Skip NE column for now — handled via merge below
-            if col_idx == 1:
+            if col_idx == 1:  # Network Element column - handled later
                 continue
+            val = row[col_name] if col_name in row else None
             cell = ws.cell(row=excel_row, column=col_idx)
             cell.value = None if (val is None or (isinstance(val, float) and pd.isna(val))) else val
             cell.border = BORDER
             cell.alignment = LEFT_ALIGN if col_idx == 2 else RIGHT_ALIGN
             if isinstance(cell.value, (int, float)):
-                cell.number_format = '#,##0.00' if col_idx >= 5 else '#,##0'
+                if col_idx >= 5 and col_idx <= 6:  # Gi and SGi columns
+                    cell.number_format = '#,##0.00'
+                else:
+                    cell.number_format = '#,##0'
             if is_alt:
                 cell.fill = ALTERNATE_ROW_FILL
 
-    # Third pass: write + merge Network Element column
+    # Write and merge Network Element column
     for grp in groups:
         s, e = grp['start'], grp['end']
-        # Style all rows in the group for col A border/fill first
         for r in range(s, e + 1):
             c = ws.cell(row=r, column=1)
             c.fill = NE_CELL_FILL
             c.border = BORDER
-        # Merge if multi-row
         if s < e:
             ws.merge_cells(start_row=s, start_column=1, end_row=e, end_column=1)
-        # Set value and style on the top (anchor) cell
         anchor = ws.cell(row=s, column=1)
         anchor.value = grp['name']
         anchor.font = Font(bold=True, size=11, color="1a4a6e")
